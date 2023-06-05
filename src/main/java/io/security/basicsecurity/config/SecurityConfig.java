@@ -48,6 +48,7 @@ public class SecurityConfig {
                         response.sendRedirect("/login");
                     }
                 }) //로그인 실패 이후에 호출될 핸들러
+                .permitAll() //해당 경로로 접근하는 경우 접근을 허용하도록 하는 코드 설정
 
         ;
         return http.build();
