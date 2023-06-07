@@ -10,10 +10,13 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @Configuration
@@ -28,29 +31,49 @@ public class SecurityConfig {
                 );
         http //우리가 원하는 id/pw 로그인 되도록 설정
                 .formLogin()
-                .loginPage("/loginPage") //사용자가 정의한 로그인 페이지 설정
-                .defaultSuccessUrl("/") //로그인 성공 후 이동할 페이지 경로 설정
-                .failureUrl("/login") //로그인 실패 후 이동할 페이지 경로 설정
-                .usernameParameter("userId") //form 로그인 안에서 설정된 username 파라미터명 설정(커스텀 가능)
-                .passwordParameter("passwd") //form 로그인 안에서 설정된 password 파라미터명 설정(커스텀 가능)
-                .loginProcessingUrl("/login_proc") //로그인 form action url 설정 (기본값 /login)
-                .successHandler(new AuthenticationSuccessHandler() {
-                    @Override  //익명함수로 successHandelr 생성
-                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                        System.out.println("authentication" + authentication.getName());
-                        response.sendRedirect("/"); //성공 후 리다이렉트 설정
-                    }
-                }) //로그인 성공 이후에 호출될 핸들러
-                .failureHandler(new AuthenticationFailureHandler() {
-                    @Override
-                    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-                        System.out.println("exception" + exception.getMessage());
-                        response.sendRedirect("/login");
-                    }
-                }) //로그인 실패 이후에 호출될 핸들러
-                .permitAll() //해당 경로로 접근하는 경우 접근을 허용하도록 하는 코드 설정
+//                .loginPage("/loginPage") //사용자가 정의한 로그인 페이지 설정
+//                .defaultSuccessUrl("/") //로그인 성공 후 이동할 페이지 경로 설정
+//                .failureUrl("/login") //로그인 실패 후 이동할 페이지 경로 설정
+//                .usernameParameter("userId") //form 로그인 안에서 설정된 username 파라미터명 설정(커스텀 가능)
+//                .passwordParameter("passwd") //form 로그인 안에서 설정된 password 파라미터명 설정(커스텀 가능)
+//                .loginProcessingUrl("/login_proc") //로그인 form action url 설정 (기본값 /login)
+//                .successHandler(new AuthenticationSuccessHandler() {
+//                    @Override  //익명함수로 successHandelr 생성
+//                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+//                        System.out.println("authentication" + authentication.getName());
+//                        response.sendRedirect("/"); //성공 후 리다이렉트 설정
+//                    }
+//                }) //로그인 성공 이후에 호출될 핸들러
+//                .failureHandler(new AuthenticationFailureHandler() {
+//                    @Override
+//                    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+//                        System.out.println("exception" + exception.getMessage());
+//                        response.sendRedirect("/login");
+//                    }
+//                }) //로그인 실패 이후에 호출될 핸들러
+//                .permitAll() //해당 경로로 접근하는 경우 접근을 허용하도록 하는 코드 설정
 
         ;
+        http
+                .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login")
+                .addLogoutHandler(new LogoutHandler() {
+                    @Override
+                    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+                        HttpSession session = request.getSession();
+                        session.invalidate();
+                    }
+                })
+                .logoutSuccessHandler(new LogoutSuccessHandler() {
+                    @Override
+                    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                        response.sendRedirect("/login");
+                    }
+                })
+                .deleteCookies("remember-me")
+        ;
+
         return http.build();
     }
 }
