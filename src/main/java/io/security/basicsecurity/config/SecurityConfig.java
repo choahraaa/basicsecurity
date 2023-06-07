@@ -1,5 +1,6 @@
 package io.security.basicsecurity.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -7,6 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -22,6 +24,9 @@ import java.io.IOException;
 @Configuration
 @EnableWebSecurity  //웹보안이 활성화되는 어노테이션
 public class SecurityConfig {
+
+    @Autowired
+    UserDetailsService userDetailService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -71,7 +76,11 @@ public class SecurityConfig {
                         response.sendRedirect("/login");
                     }
                 })
-                .deleteCookies("remember-me")
+        .and()
+                .rememberMe()
+                .rememberMeParameter("remember")
+                .tokenValiditySeconds(3600)
+                .userDetailsService(userDetailService)
         ;
 
         return http.build();
