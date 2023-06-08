@@ -59,30 +59,34 @@ public class SecurityConfig {
 //                .permitAll() //해당 경로로 접근하는 경우 접근을 허용하도록 하는 코드 설정
 
         ;
-        http
-                .logout()
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/login")
-                .addLogoutHandler(new LogoutHandler() {
-                    @Override
-                    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-                        HttpSession session = request.getSession();
-                        session.invalidate();
-                    }
-                })
-                .logoutSuccessHandler(new LogoutSuccessHandler() {
-                    @Override
-                    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                        response.sendRedirect("/login");
-                    }
-                })
-        .and()
-                .rememberMe()
-                .rememberMeParameter("remember")
-                .tokenValiditySeconds(3600)
-                .userDetailsService(userDetailService)
-        ;
+//        http
+//                .logout()
+//                .logoutUrl("/logout")
+//                .logoutSuccessUrl("/login")
+//                .addLogoutHandler(new LogoutHandler() {
+//                    @Override
+//                    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+//                        HttpSession session = request.getSession();
+//                        session.invalidate();
+//                    }
+//                })
+//                .logoutSuccessHandler(new LogoutSuccessHandler() {
+//                    @Override
+//                    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+//                        response.sendRedirect("/login");
+//                    }
+//                })
+//        .and()
+//                .rememberMe()
+//                .rememberMeParameter("remember")
+//                .tokenValiditySeconds(3600)
+//                .userDetailsService(userDetailService)
+//        ;
 
+        http
+                .sessionManagement()
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false);
         return http.build();
     }
 }
